@@ -63,6 +63,7 @@ public class AnomalyDetectorManager {
   private final AnomalyNotifier _anomalyNotifier;
   // Detectors
   private final GoalViolationDetector _goalViolationDetector;
+  private final IntraBrokerGoalViolationDetector _intraBrokerGoalViolationDetector;
   private final BrokerFailureDetector _brokerFailureDetector;
   private final MetricAnomalyDetector _metricAnomalyDetector;
   private final DiskFailureDetector _diskFailureDetector;
@@ -91,6 +92,8 @@ public class AnomalyDetectorManager {
     Long goalViolationDetectionIntervalMs = config.getLong(AnomalyDetectorConfig.GOAL_VIOLATION_DETECTION_INTERVAL_MS_CONFIG);
     _anomalyDetectionIntervalMsByType.put(GOAL_VIOLATION, goalViolationDetectionIntervalMs == null ? anomalyDetectionIntervalMs
                                                                                                    : goalViolationDetectionIntervalMs);
+    _anomalyDetectionIntervalMsByType.put(INTRA_BROKER_GOAL_VIOLATION, goalViolationDetectionIntervalMs == null ? anomalyDetectionIntervalMs
+            : goalViolationDetectionIntervalMs);
     Long metricAnomalyDetectionIntervalMs = config.getLong(AnomalyDetectorConfig.METRIC_ANOMALY_DETECTION_INTERVAL_MS_CONFIG);
     _anomalyDetectionIntervalMsByType.put(METRIC_ANOMALY, metricAnomalyDetectionIntervalMs == null ? anomalyDetectionIntervalMs
                                                                                                    : metricAnomalyDetectionIntervalMs);
@@ -107,6 +110,7 @@ public class AnomalyDetectorManager {
     _selfHealingGoals = getSelfHealingGoalNames(config);
     sanityCheckGoals(_selfHealingGoals, false, config);
     _goalViolationDetector = new GoalViolationDetector(_anomalies, _kafkaCruiseControl, dropwizardMetricRegistry);
+    _intraBrokerGoalViolationDetector = new IntraBrokerGoalViolationDetector(_anomalies, _kafkaCruiseControl, dropwizardMetricRegistry);
     _brokerFailureDetector = new BrokerFailureDetector(_anomalies, _kafkaCruiseControl);
     _metricAnomalyDetector = new MetricAnomalyDetector(_anomalies, _kafkaCruiseControl);
     _diskFailureDetector = new DiskFailureDetector(_anomalies, _kafkaCruiseControl);
@@ -144,6 +148,7 @@ public class AnomalyDetectorManager {
                          DiskFailureDetector diskFailureDetector,
                          TopicAnomalyDetector topicAnomalyDetector,
                          MaintenanceEventDetector maintenanceEventDetector,
+                         IntraBrokerGoalViolationDetector intraBrokerGoalViolationDetector,
                          ScheduledExecutorService detectorScheduler) {
     _anomalies = anomalies;
     _anomalyDetectionIntervalMsByType = new HashMap<>(KafkaAnomalyType.cachedValues().size() - 1);
@@ -153,6 +158,7 @@ public class AnomalyDetectorManager {
     _brokerFailureDetectionBackoffMs = anomalyDetectionIntervalMs;
     _anomalyNotifier = anomalyNotifier;
     _goalViolationDetector = goalViolationDetector;
+    _intraBrokerGoalViolationDetector = intraBrokerGoalViolationDetector;
     _brokerFailureDetector = brokerFailureDetector;
     _metricAnomalyDetector = metricAnomalyDetector;
     _diskFailureDetector = diskFailureDetector;
@@ -232,6 +238,7 @@ public class AnomalyDetectorManager {
     LOG.info("Starting {} detector.", BROKER_FAILURE);
     _brokerFailureDetector.startDetection();
     scheduleDetectorAtFixedRate(GOAL_VIOLATION, _goalViolationDetector);
+    scheduleDetectorAtFixedRate(INTRA_BROKER_GOAL_VIOLATION, _intraBrokerGoalViolationDetector);
     scheduleDetectorAtFixedRate(METRIC_ANOMALY, _metricAnomalyDetector);
     scheduleDetectorAtFixedRate(TOPIC_ANOMALY, _topicAnomalyDetector);
     scheduleDetectorAtFixedRate(DISK_FAILURE, _diskFailureDetector);
@@ -440,6 +447,11 @@ public class AnomalyDetectorManager {
           GoalViolations goalViolations = (GoalViolations) _anomalyInProgress;
           notificationResult = _anomalyNotifier.onGoalViolation(goalViolations);
           _anomalyDetectorState.refreshHasUnfixableGoal(goalViolations);
+          break;
+        case INTRA_BROKER_GOAL_VIOLATION:
+          IntraBrokerGoalViolations intraBrokerGoalViolations = (IntraBrokerGoalViolations) _anomalyInProgress;
+          notificationResult = _anomalyNotifier.onIntraBrokerGoalViolation(intraBrokerGoalViolations);
+          _anomalyDetectorState.refreshHasUnfixableGoal(intraBrokerGoalViolations);
           break;
         case BROKER_FAILURE:
           BrokerFailures brokerFailures = (BrokerFailures) _anomalyInProgress;

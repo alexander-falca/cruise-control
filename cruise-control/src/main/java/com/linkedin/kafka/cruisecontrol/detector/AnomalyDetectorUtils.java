@@ -87,6 +87,17 @@ public class AnomalyDetectorUtils {
   }
 
   /**
+   * @return A list of names for goals {@link AnomalyDetectorConfig#SELF_HEALING_INTRA_BROKER_GOALS_CONFIG} in the order of priority.
+   */
+  public static List<String> getSelfHealingIntraBrokerGoalNames(KafkaCruiseControlConfig config) {
+    List<Goal> goals = config.getConfiguredInstances(AnomalyDetectorConfig.SELF_HEALING_INTRA_BROKER_GOALS_CONFIG, Goal.class);
+    List<String> selfHealingGoalNames = new ArrayList<>(goals.size());
+    for (Goal goal : goals) {
+      selfHealingGoalNames.add(goal.name());
+    }
+    return selfHealingGoalNames;
+  }
+  /**
    * Retrieve the {@link AnomalyDetectionStatus anomaly detection status}, indicating whether an anomaly detector is
    * ready to check for an anomaly.
    *
@@ -142,6 +153,17 @@ public class AnomalyDetectorUtils {
    * @return True if the given goal violations contain unfixable goals, false otherwise.
    */
   public static boolean hasUnfixableGoals(GoalViolations goalViolations) {
+    List<String> unfixableGoals = goalViolations.violatedGoalsByFixability().get(false);
+    return unfixableGoals != null && !unfixableGoals.isEmpty();
+  }
+
+  /**
+   * Check whether the given goal violations has unfixable goals.
+   *
+   * @param goalViolations Goal violations to check whether there are unfixable goals.
+   * @return True if the given goal violations contain unfixable goals, false otherwise.
+   */
+  public static boolean hasUnfixableGoals(IntraBrokerGoalViolations goalViolations) {
     List<String> unfixableGoals = goalViolations.violatedGoalsByFixability().get(false);
     return unfixableGoals != null && !unfixableGoals.isEmpty();
   }

@@ -7,14 +7,7 @@ package com.linkedin.kafka.cruisecontrol.detector.notifier;
 import com.linkedin.cruisecontrol.CruiseControlUtils;
 import com.linkedin.cruisecontrol.detector.Anomaly;
 import com.linkedin.cruisecontrol.detector.AnomalyType;
-import com.linkedin.kafka.cruisecontrol.detector.BrokerFailures;
-import com.linkedin.kafka.cruisecontrol.detector.DiskFailures;
-import com.linkedin.kafka.cruisecontrol.detector.GoalViolations;
-import com.linkedin.kafka.cruisecontrol.detector.KafkaMetricAnomaly;
-import com.linkedin.kafka.cruisecontrol.detector.MaintenanceEvent;
-import com.linkedin.kafka.cruisecontrol.detector.TopicAnomaly;
-import com.linkedin.kafka.cruisecontrol.detector.TopicPartitionSizeAnomaly;
-import com.linkedin.kafka.cruisecontrol.detector.TopicReplicationFactorAnomaly;
+import com.linkedin.kafka.cruisecontrol.detector.*;
 import com.linkedin.kafka.cruisecontrol.detector.TopicReplicationFactorAnomaly.TopicReplicationFactorAnomalyEntry;
 import com.linkedin.kafka.cruisecontrol.monitor.sampling.holder.BrokerEntity;
 import java.io.IOException;
@@ -112,6 +105,10 @@ public class AlertaSelfHealingNotifier extends SelfHealingNotifier {
       case GOAL_VIOLATION:
         GoalViolations goalViolations = (GoalViolations) anomaly;
         alertGoalViolation(anomalyType, localHostname, alertaMessages, goalViolations);
+        break;
+      case INTRA_BROKER_GOAL_VIOLATION:
+        IntraBrokerGoalViolations intraBrokerGoalViolations = (IntraBrokerGoalViolations) anomaly;
+        alertIntraBrokerGoalViolation(anomalyType, localHostname, alertaMessages, intraBrokerGoalViolations);
         break;
       case BROKER_FAILURE:
         BrokerFailures brokerFailures = (BrokerFailures) anomaly;
@@ -243,6 +240,20 @@ public class AlertaSelfHealingNotifier extends SelfHealingNotifier {
 
   private void alertGoalViolation(AnomalyType anomalyType, final String localHostname,
                                   List<AlertaMessage> alertaMessages, GoalViolations goalViolations) {
+    Map<Boolean, List<String>> violations = goalViolations.violatedGoalsByFixability();
+    for (Entry<Boolean, List<String>> entry : violations.entrySet()) {
+      entry.getValue().forEach(goal -> {
+        AlertaMessage alertaMessage = new AlertaMessage(localHostname, anomalyType.toString() + " - " + goal);
+        alertaMessage.setSeverity(NotifierUtils.getAlertSeverity(anomalyType).toString());
+        alertaMessage.setGroup(AlertaAlertGroup.PERFORMANCE.toString());
+        alertaMessage.setCreateTime(CruiseControlUtils.utcDateFor(goalViolations.detectionTimeMs(), 3, ChronoUnit.SECONDS));
+        alertaMessages.add(alertaMessage);
+      });
+    }
+  }
+
+  private void alertIntraBrokerGoalViolation(AnomalyType anomalyType, final String localHostname,
+                                  List<AlertaMessage> alertaMessages, IntraBrokerGoalViolations goalViolations) {
     Map<Boolean, List<String>> violations = goalViolations.violatedGoalsByFixability();
     for (Entry<Boolean, List<String>> entry : violations.entrySet()) {
       entry.getValue().forEach(goal -> {

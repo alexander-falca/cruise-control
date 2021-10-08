@@ -8,15 +8,7 @@ import com.linkedin.kafka.cruisecontrol.analyzer.goals.DiskCapacityGoal;
 import com.linkedin.kafka.cruisecontrol.analyzer.goals.MinTopicLeadersPerBrokerGoal;
 import com.linkedin.kafka.cruisecontrol.analyzer.goals.RackAwareGoal;
 import com.linkedin.kafka.cruisecontrol.analyzer.goals.ReplicaCapacityGoal;
-import com.linkedin.kafka.cruisecontrol.detector.BrokerFailures;
-import com.linkedin.kafka.cruisecontrol.detector.DiskFailures;
-import com.linkedin.kafka.cruisecontrol.detector.GoalViolations;
-import com.linkedin.kafka.cruisecontrol.detector.KafkaMetricAnomaly;
-import com.linkedin.kafka.cruisecontrol.detector.MaintenanceEvent;
-import com.linkedin.kafka.cruisecontrol.detector.NoopMaintenanceEventReader;
-import com.linkedin.kafka.cruisecontrol.detector.NoopMetricAnomalyFinder;
-import com.linkedin.kafka.cruisecontrol.detector.NoopProvisioner;
-import com.linkedin.kafka.cruisecontrol.detector.NoopTopicAnomalyFinder;
+import com.linkedin.kafka.cruisecontrol.detector.*;
 import com.linkedin.kafka.cruisecontrol.detector.notifier.NoopNotifier;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +62,13 @@ public class AnomalyDetectorConfig {
   public static final String GOAL_VIOLATIONS_CLASS_DOC = "The name of class that extends goal violations.";
 
   /**
+   * <code>intra.broker.goal.violations.class</code>
+   */
+  public static final String INTRA_BROKER_GOAL_VIOLATIONS_CLASS_CONFIG = "intra.broker.goal.violations.class";
+  public static final String DEFAULT_INTRA_BROKER_GOAL_VIOLATIONS_CLASS = IntraBrokerGoalViolations.class.getName();
+  public static final String INTRA_BROKER_GOAL_VIOLATIONS_CLASS_DOC = "The name of class that extends intra broker goal violations.";
+
+  /**
    * <code>disk.failures.class</code>
    */
   public static final String DISK_FAILURES_CLASS_CONFIG = "disk.failures.class";
@@ -90,6 +89,14 @@ public class AnomalyDetectorConfig {
   public static final List<String> DEFAULT_SELF_HEALING_GOALS = Collections.emptyList();
   public static final String SELF_HEALING_GOALS_DOC = "The list of goals to be used for self-healing relevant anomalies."
       + " If empty, uses the default.goals for self healing.";
+
+  /**
+   * <code>self.healing.intra.broker.goals</code>
+   */
+  public static final String SELF_HEALING_INTRA_BROKER_GOALS_CONFIG = "self.healing.intra.broker.goals";
+  public static final List<String> DEFAULT_SELF_HEALING_INTRA_BROKER_GOALS = Collections.emptyList();
+  public static final String SELF_HEALING_INTRA_BROKER_GOALS_DOC = "The list of goals to be used for self-healing relevant intra Broker anomalies."
+          + " If empty, uses the intra.broker.goals for self healing.";
 
   /**
    * <code>anomaly.notifier.class</code>
@@ -300,6 +307,11 @@ public class AnomalyDetectorConfig {
                             DEFAULT_GOAL_VIOLATIONS_CLASS,
                             ConfigDef.Importance.MEDIUM,
                             GOAL_VIOLATIONS_CLASS_DOC)
+                    .define(INTRA_BROKER_GOAL_VIOLATIONS_CLASS_CONFIG,
+                            ConfigDef.Type.CLASS,
+                            DEFAULT_INTRA_BROKER_GOAL_VIOLATIONS_CLASS,
+                            ConfigDef.Importance.MEDIUM,
+                            INTRA_BROKER_GOAL_VIOLATIONS_CLASS_DOC)
                     .define(DISK_FAILURES_CLASS_CONFIG,
                             ConfigDef.Type.CLASS,
                             DEFAULT_DISK_FAILURES_CLASS,
@@ -315,6 +327,11 @@ public class AnomalyDetectorConfig {
                             DEFAULT_SELF_HEALING_GOALS,
                             ConfigDef.Importance.HIGH,
                             SELF_HEALING_GOALS_DOC)
+                    .define(SELF_HEALING_INTRA_BROKER_GOALS_CONFIG,
+                            ConfigDef.Type.LIST,
+                            DEFAULT_SELF_HEALING_INTRA_BROKER_GOALS,
+                            ConfigDef.Importance.HIGH,
+                            SELF_HEALING_INTRA_BROKER_GOALS_DOC)
                     .define(ANOMALY_NOTIFIER_CLASS_CONFIG,
                             ConfigDef.Type.CLASS,
                             DEFAULT_ANOMALY_NOTIFIER_CLASS,

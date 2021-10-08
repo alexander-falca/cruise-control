@@ -111,6 +111,7 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
    *   <li>{@link AnalyzerConfig#DEFAULT_GOALS_CONFIG} is a subset of {@link AnalyzerConfig#GOALS_CONFIG}.</li>
    *   <li>{@link AnalyzerConfig#HARD_GOALS_CONFIG} is a subset of {@link AnalyzerConfig#DEFAULT_GOALS_CONFIG}.</li>
    *   <li>{@link AnomalyDetectorConfig#SELF_HEALING_GOALS_CONFIG} is a subset of {@link AnalyzerConfig#DEFAULT_GOALS_CONFIG}.</li>
+   *   <li>{@link AnomalyDetectorConfig#SELF_HEALING_INTRA_BROKER_GOALS_CONFIG} is a subset of {@link AnalyzerConfig#INTRA_BROKER_GOALS_CONFIG}.</li>
    *   <li>{@link AnomalyDetectorConfig#ANOMALY_DETECTION_GOALS_CONFIG} is a sublist of {@link AnalyzerConfig#DEFAULT_GOALS_CONFIG} otherwise.</li>
    * </ul>
    */
@@ -175,6 +176,14 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
       throw new ConfigException(String.format("Attempt to configure self healing goals with unsupported goals (%s:%s and %s:%s).",
                                               AnomalyDetectorConfig.SELF_HEALING_GOALS_CONFIG, selfHealingGoalNames,
                                               AnalyzerConfig.DEFAULT_GOALS_CONFIG, defaultGoalNames));
+    }
+
+    // Ensure that intra broker goals used for self-healing are contained in intra broker goals.
+    List<String> selfHealingIntraBrokerGoalNames = getList(AnomalyDetectorConfig.SELF_HEALING_INTRA_BROKER_GOALS_CONFIG);
+    if (selfHealingIntraBrokerGoalNames.stream().anyMatch(g -> !intraBrokerGoalNames.contains(g))) {
+      throw new ConfigException(String.format("Attempt to configure self healing goals with unsupported goals (%s:%s and %s:%s).",
+              AnomalyDetectorConfig.SELF_HEALING_INTRA_BROKER_GOALS_CONFIG, selfHealingIntraBrokerGoalNames,
+              AnalyzerConfig.INTRA_BROKER_GOALS_CONFIG, intraBrokerGoalNames));
     }
   }
 

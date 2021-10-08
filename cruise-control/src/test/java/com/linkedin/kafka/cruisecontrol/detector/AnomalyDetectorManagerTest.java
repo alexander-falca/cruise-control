@@ -161,6 +161,7 @@ public class AnomalyDetectorManagerTest {
     AnomalyNotifier mockAnomalyNotifier = EasyMock.mock(AnomalyNotifier.class);
     BrokerFailureDetector mockBrokerFailureDetector = EasyMock.createNiceMock(BrokerFailureDetector.class);
     GoalViolationDetector mockGoalViolationDetector = EasyMock.createNiceMock(GoalViolationDetector.class);
+    IntraBrokerGoalViolationDetector mockIntraBrokerGoalViolationDetector = EasyMock.createNiceMock(IntraBrokerGoalViolationDetector.class);
     MetricAnomalyDetector mockMetricAnomalyDetector = EasyMock.createNiceMock(MetricAnomalyDetector.class);
     TopicAnomalyDetector mockTopicAnomalyDetector = EasyMock.createNiceMock(TopicAnomalyDetector.class);
     MaintenanceEventDetector mockMaintenanceEventDetector = EasyMock.createNiceMock(MaintenanceEventDetector.class);
@@ -193,7 +194,7 @@ public class AnomalyDetectorManagerTest {
         = new AnomalyDetectorManager(anomalies, MOCK_ANOMALY_DETECTION_INTERVAL_MS, mockKafkaCruiseControl,
                                      mockAnomalyNotifier, mockGoalViolationDetector, mockBrokerFailureDetector,
                                      mockMetricAnomalyDetector, mockDiskFailureDetector, mockTopicAnomalyDetector,
-                                     mockMaintenanceEventDetector, mockDetectorScheduler);
+                                     mockMaintenanceEventDetector, mockIntraBrokerGoalViolationDetector, mockDetectorScheduler);
 
     try {
       anomalyDetectorManager.startDetection();
@@ -256,6 +257,7 @@ public class AnomalyDetectorManagerTest {
     AnomalyNotifier mockAnomalyNotifier = EasyMock.mock(AnomalyNotifier.class);
     BrokerFailureDetector mockBrokerFailureDetector = EasyMock.createNiceMock(BrokerFailureDetector.class);
     GoalViolationDetector mockGoalViolationDetector = EasyMock.createNiceMock(GoalViolationDetector.class);
+    IntraBrokerGoalViolationDetector mockIntraBrokerGoalViolationDetector = EasyMock.createNiceMock(IntraBrokerGoalViolationDetector.class);
     MetricAnomalyDetector mockMetricAnomalyDetector = EasyMock.createNiceMock(MetricAnomalyDetector.class);
     TopicAnomalyDetector mockTopicAnomalyDetector = EasyMock.createNiceMock(TopicAnomalyDetector.class);
     MaintenanceEventDetector mockMaintenanceEventDetector = EasyMock.createNiceMock(MaintenanceEventDetector.class);
@@ -440,7 +442,7 @@ public class AnomalyDetectorManagerTest {
         = new AnomalyDetectorManager(anomalies, MOCK_ANOMALY_DETECTION_INTERVAL_MS, mockKafkaCruiseControl,
                                      mockAnomalyNotifier, mockGoalViolationDetector, mockBrokerFailureDetector,
                                      mockMetricAnomalyDetector, mockDiskFailureDetector, mockTopicAnomalyDetector,
-                                     mockMaintenanceEventDetector, mockDetectorScheduler);
+                                     mockMaintenanceEventDetector, mockIntraBrokerGoalViolationDetector, mockDetectorScheduler);
 
     try {
       Map<String, Object> parameterConfigOverrides = new HashMap<>(10);
@@ -523,6 +525,7 @@ public class AnomalyDetectorManagerTest {
     AnomalyNotifier mockAnomalyNotifier = EasyMock.mock(AnomalyNotifier.class);
     BrokerFailureDetector mockBrokerFailureDetector = EasyMock.createNiceMock(BrokerFailureDetector.class);
     GoalViolationDetector mockGoalViolationDetector = EasyMock.createNiceMock(GoalViolationDetector.class);
+    IntraBrokerGoalViolationDetector mockIntraBrokerGoalViolationDetector = EasyMock.createNiceMock(IntraBrokerGoalViolationDetector.class);
     MetricAnomalyDetector mockMetricAnomalyDetector = EasyMock.createNiceMock(MetricAnomalyDetector.class);
     TopicAnomalyDetector mockTopicAnomalyDetector = EasyMock.createNiceMock(TopicAnomalyDetector.class);
     MaintenanceEventDetector mockMaintenanceEventDetector = EasyMock.createNiceMock(MaintenanceEventDetector.class);
@@ -551,7 +554,7 @@ public class AnomalyDetectorManagerTest {
         = new AnomalyDetectorManager(anomalies, MOCK_ANOMALY_DETECTION_INTERVAL_MS, mockKafkaCruiseControl,
                                      mockAnomalyNotifier, mockGoalViolationDetector, mockBrokerFailureDetector,
                                      mockMetricAnomalyDetector, mockDiskFailureDetector, mockTopicAnomalyDetector,
-                                     mockMaintenanceEventDetector, mockDetectorScheduler);
+                                     mockMaintenanceEventDetector, mockIntraBrokerGoalViolationDetector, mockDetectorScheduler);
 
     try {
       anomalyDetectorManager.startDetection();
@@ -588,6 +591,7 @@ public class AnomalyDetectorManagerTest {
     AnomalyNotifier mockAnomalyNotifier = EasyMock.createNiceMock(AnomalyNotifier.class);
     BrokerFailureDetector mockBrokerFailureDetector = EasyMock.createNiceMock(BrokerFailureDetector.class);
     GoalViolationDetector mockGoalViolationDetector = EasyMock.createNiceMock(GoalViolationDetector.class);
+    IntraBrokerGoalViolationDetector mockIntraBrokerGoalViolationDetector = EasyMock.createNiceMock(IntraBrokerGoalViolationDetector.class);
     MetricAnomalyDetector mockMetricAnomalyDetector = EasyMock.createNiceMock(MetricAnomalyDetector.class);
     TopicAnomalyDetector mockTopicAnomalyDetector = EasyMock.createNiceMock(TopicAnomalyDetector.class);
     MaintenanceEventDetector mockMaintenanceEventDetector = EasyMock.createNiceMock(MaintenanceEventDetector.class);
@@ -600,7 +604,7 @@ public class AnomalyDetectorManagerTest {
         = new AnomalyDetectorManager(anomalies, MOCK_ANOMALY_DETECTION_INTERVAL_MS,
                                      mockKafkaCruiseControl, mockAnomalyNotifier, mockGoalViolationDetector,
                                      mockBrokerFailureDetector, mockMetricAnomalyDetector, mockDiskFailureDetector,
-                                     mockTopicAnomalyDetector, mockMaintenanceEventDetector, detectorScheduler);
+                                     mockTopicAnomalyDetector, mockMaintenanceEventDetector, mockIntraBrokerGoalViolationDetector, detectorScheduler);
 
     anomalyDetectorManager.shutdown();
     Thread t = new Thread(anomalyDetectorManager::shutdown);

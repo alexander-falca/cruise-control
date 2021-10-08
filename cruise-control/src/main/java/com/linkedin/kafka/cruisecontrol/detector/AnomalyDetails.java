@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static com.linkedin.cruisecontrol.CruiseControlUtils.utcDateFor;
 import static com.linkedin.kafka.cruisecontrol.detector.notifier.KafkaAnomalyType.GOAL_VIOLATION;
+import static com.linkedin.kafka.cruisecontrol.detector.notifier.KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION;
 
 @JsonResponseClass
 public class AnomalyDetails {
@@ -58,7 +59,7 @@ public class AnomalyDetails {
    */
   public Map<String, Object> populateAnomalyDetails() {
     // Goal violation has one more field than other anomaly types.
-    Map<String, Object> anomalyDetails = new HashMap<>((_hasFixStarted ? 6 : 5) + (_anomalyType == GOAL_VIOLATION ? 1 : 0));
+    Map<String, Object> anomalyDetails = new HashMap<>((_hasFixStarted ? 6 : 5) + ((_anomalyType == GOAL_VIOLATION)||(_anomalyType == INTRA_BROKER_GOAL_VIOLATION) ? 1 : 0));
     anomalyDetails.put(_isJson ? DETECTION_MS : DETECTION_DATE,
                        _isJson ? _anomalyState.detectionMs() : utcDateFor(_anomalyState.detectionMs()));
     anomalyDetails.put(STATUS, _anomalyState.status());
@@ -73,6 +74,15 @@ public class AnomalyDetails {
         anomalyDetails.put(UNFIXABLE_VIOLATED_GOALS, violatedGoalsByFixability.getOrDefault(false, Collections.emptyList()));
         if (_hasFixStarted) {
           anomalyDetails.put(OPTIMIZATION_RESULT, goalViolations.optimizationResult(_isJson));
+        }
+        break;
+      case INTRA_BROKER_GOAL_VIOLATION:
+        IntraBrokerGoalViolations intraBrokerGoalViolations = (IntraBrokerGoalViolations) _anomalyState.anomaly();
+        Map<Boolean, List<String>> violatedIntraBrokerGoalsByFixability = intraBrokerGoalViolations.violatedGoalsByFixability();
+        anomalyDetails.put(FIXABLE_VIOLATED_GOALS, violatedIntraBrokerGoalsByFixability.getOrDefault(true, Collections.emptyList()));
+        anomalyDetails.put(UNFIXABLE_VIOLATED_GOALS, violatedIntraBrokerGoalsByFixability.getOrDefault(false, Collections.emptyList()));
+        if (_hasFixStarted) {
+          anomalyDetails.put(OPTIMIZATION_RESULT, intraBrokerGoalViolations.optimizationResult(_isJson));
         }
         break;
       case BROKER_FAILURE:
