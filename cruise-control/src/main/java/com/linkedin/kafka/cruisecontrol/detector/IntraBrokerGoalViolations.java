@@ -130,9 +130,6 @@ public class IntraBrokerGoalViolations extends KafkaAnomaly {
     boolean allowCapacityEstimation = config.getBoolean(ANOMALY_DETECTION_ALLOW_CAPACITY_ESTIMATION_CONFIG);
     _excludeRecentlyDemotedBrokers = config.getBoolean(SELF_HEALING_EXCLUDE_RECENTLY_DEMOTED_BROKERS_CONFIG);
     _excludeRecentlyRemovedBrokers = config.getBoolean(SELF_HEALING_EXCLUDE_RECENTLY_REMOVED_BROKERS_CONFIG);
-
-    LOG.info("List of SelfHealing Intra Brokers Goals");
-    LOG.info(getSelfHealingIntraBrokerGoalNames(config).toString());
     _rebalanceRunnable = new RebalanceRunnable(kafkaCruiseControl,
                                                getSelfHealingIntraBrokerGoalNames(config),
                                                allowCapacityEstimation,

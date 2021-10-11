@@ -50,7 +50,6 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
   private final Map<String, Double> _balancednessCostByGoal;
   private volatile double _balancednessScore;
   private volatile ProvisionResponse _provisionResponse;
-  private volatile boolean _hasPartitionsWithRFGreaterThanNumRacks;
   private final OptimizationOptionsGenerator _optimizationOptionsGenerator;
   private final Timer _goalViolationDetectionTimer;
   protected static final double BALANCEDNESS_SCORE_WITH_OFFLINE_REPLICAS = -1.0;
@@ -70,7 +69,6 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
                                                      config.getDouble(AnalyzerConfig.GOAL_BALANCEDNESS_STRICTNESS_WEIGHT_CONFIG));
     _balancednessScore = MAX_BALANCEDNESS_SCORE;
     _provisionResponse = new ProvisionResponse(ProvisionStatus.UNDECIDED);
-    _hasPartitionsWithRFGreaterThanNumRacks = false;
     Map<String, Object> overrideConfigs = new HashMap<>(2);
     overrideConfigs.put(KAFKA_CRUISE_CONTROL_CONFIG_OBJECT_CONFIG, config);
     overrideConfigs.put(ADMIN_CLIENT_CONFIG, _kafkaCruiseControl.adminClient());
@@ -78,7 +76,7 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
                                                                  OptimizationOptionsGenerator.class,
                                                                  overrideConfigs);
     _goalViolationDetectionTimer = dropwizardMetricRegistry.timer(MetricRegistry.name(ANOMALY_DETECTOR_SENSOR,
-                                                                                      "goal-violation-detection-timer"));
+                                                                                      "intra-broker-goal-violation-detection-timer"));
     overrideConfigs = Collections.singletonMap(KAFKA_CRUISE_CONTROL_OBJECT_CONFIG, kafkaCruiseControl);
     _provisioner = config.getConfiguredInstance(AnomalyDetectorConfig.PROVISIONER_CLASS_CONFIG,
                                                 Provisioner.class,
@@ -97,14 +95,6 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
    */
   public ProvisionStatus provisionStatus() {
     return _provisionResponse.status();
-  }
-
-  /**
-   * @return {@code true} if the goal violation detector identified partitions with a replication factor (RF) greater than the number of
-   * racks that contain brokers that are eligible to host replicas (i.e. not excluded for replica moves), {@code false} otherwise.
-   */
-  public boolean hasPartitionsWithRFGreaterThanNumRacks() {
-    return _hasPartitionsWithRFGreaterThanNumRacks;
   }
 
   /**
@@ -135,8 +125,6 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
     } else if (detectionStatus == AnomalyDetectionStatus.SKIP_EXECUTOR_NOT_READY) {
       // An ongoing execution might indicate a cluster expansion/shrinking. Hence, the detector avoids reporting a stale provision status.
       _provisionResponse = new ProvisionResponse(ProvisionStatus.UNDECIDED);
-      // An ongoing execution may modify the replication factor of partitions; hence, the detector avoids reporting potential false positives.
-      _hasPartitionsWithRFGreaterThanNumRacks = false;
     }
 
     return detectionStatus;
@@ -172,7 +160,6 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
                                                                                   : Collections.emptySet();
 
       ProvisionResponse provisionResponse = new ProvisionResponse(ProvisionStatus.UNDECIDED);
-      boolean checkPartitionsWithRFGreaterThanNumRacks = true;
       final Timer.Context ctx = _goalViolationDetectionTimer.time();
       try {
         for (Goal goal : _detectionGoals) {
@@ -197,11 +184,8 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
               }
               _lastCheckedModelGeneration = clusterModel.generation();
             }
-            newModelNeeded = optimizeForGoal(clusterModel, goal, goalViolations, excludedBrokersForLeadership, excludedBrokersForReplicaMove,
-                                             checkPartitionsWithRFGreaterThanNumRacks);
-            // CC will check for partitions with RF greater than number of eligible racks just once, because regardless of the goal, the cluster
-            // will have the same (1) maximum replication factor and (2) rack count containing brokers that are eligible to host replicas.
-            checkPartitionsWithRFGreaterThanNumRacks = false;
+            newModelNeeded = optimizeForGoal(clusterModel, goal, goalViolations, excludedBrokersForLeadership, excludedBrokersForReplicaMove);
+
           } else {
             LOG.warn("Skipping goal violation detection for {} because load completeness requirement is not met.", goal);
           }
@@ -280,8 +264,7 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
                                     Goal goal,
                                     IntraBrokerGoalViolations goalViolations,
                                     Set<Integer> excludedBrokersForLeadership,
-                                    Set<Integer> excludedBrokersForReplicaMove,
-                                    boolean checkPartitionsWithRFGreaterThanNumRacks)
+                                    Set<Integer> excludedBrokersForReplicaMove)
       throws KafkaCruiseControlException {
     if (clusterModel.topics().isEmpty()) {
       LOG.info("Skipping goal violation detection because the cluster model does not have any topic.");
@@ -294,9 +277,7 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
                                                                                                                excludedTopics(clusterModel),
                                                                                                                excludedBrokersForLeadership,
                                                                                                                excludedBrokersForReplicaMove);
-      if (checkPartitionsWithRFGreaterThanNumRacks) {
-        _hasPartitionsWithRFGreaterThanNumRacks = clusterModel.maxReplicationFactor() > clusterModel.numAliveRacksAllowedReplicaMoves(options);
-      }
+
       goal.optimize(clusterModel, Collections.emptySet(), options);
     } catch (OptimizationFailureException ofe) {
       // An OptimizationFailureException indicates (1) a hard goal violation that cannot be fixed typically due to
