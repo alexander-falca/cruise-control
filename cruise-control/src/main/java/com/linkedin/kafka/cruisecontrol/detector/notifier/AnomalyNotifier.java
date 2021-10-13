@@ -25,9 +25,9 @@ public interface AnomalyNotifier extends CruiseControlConfigurable {
   AnomalyNotificationResult onGoalViolation(GoalViolations goalViolations);
 
   /**
-   * When a particular goal is violated this method will be called.
+   * When a particular intra broker goal is violated this method will be called.
    *
-   * @param goalViolations The detected goal violations.
+   * @param goalViolations The detected intra broker goal violations.
    * @return The notification result that asks Cruise Control to perform a particular
    * {@link com.linkedin.kafka.cruisecontrol.detector.notifier.AnomalyNotificationResult.Action}.
    */

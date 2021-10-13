@@ -13,11 +13,7 @@ import com.linkedin.kafka.cruisecontrol.model.ClusterModel;
 import com.linkedin.kafka.cruisecontrol.model.RawAndDerivedResource;
 import com.linkedin.kafka.cruisecontrol.model.Replica;
 import com.linkedin.kafka.cruisecontrol.model.ReplicaPlacementInfo;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
@@ -164,6 +160,24 @@ public class AnalyzerUtils {
    */
   public static List<Goal> getGoalsByPriority(KafkaCruiseControlConfig config) {
     return config.getConfiguredInstances(AnalyzerConfig.DEFAULT_GOALS_CONFIG, Goal.class);
+  }
+
+  /**
+   * @return The list of intra broker goals sorted by highest to lowest default priority.
+   */
+  public static List<Goal> getIntraBrokerGoalsByPriority(KafkaCruiseControlConfig config) {
+    return config.getConfiguredInstances(AnalyzerConfig.INTRA_BROKER_GOALS_CONFIG, Goal.class);
+  }
+
+  /**
+   * @return Converts a list of Goals to a list of Strings
+   */
+  public static List<String> convertGoalsToString(List<Goal> goals) {
+    List<String> stringGoals = new ArrayList<>();
+    for(Goal goal : goals) {
+      stringGoals.add(goal.name());
+    }
+    return stringGoals;
   }
 
   /**

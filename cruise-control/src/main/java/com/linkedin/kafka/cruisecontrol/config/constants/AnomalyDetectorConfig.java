@@ -4,8 +4,22 @@
 
 package com.linkedin.kafka.cruisecontrol.config.constants;
 
-import com.linkedin.kafka.cruisecontrol.analyzer.goals.*;
-import com.linkedin.kafka.cruisecontrol.detector.*;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.DiskCapacityGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.IntraBrokerDiskCapacityGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.IntraBrokerDiskUsageDistributionGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.MinTopicLeadersPerBrokerGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.RackAwareGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.ReplicaCapacityGoal;
+import com.linkedin.kafka.cruisecontrol.detector.BrokerFailures;
+import com.linkedin.kafka.cruisecontrol.detector.DiskFailures;
+import com.linkedin.kafka.cruisecontrol.detector.GoalViolations;
+import com.linkedin.kafka.cruisecontrol.detector.IntraBrokerGoalViolations;
+import com.linkedin.kafka.cruisecontrol.detector.KafkaMetricAnomaly;
+import com.linkedin.kafka.cruisecontrol.detector.MaintenanceEvent;
+import com.linkedin.kafka.cruisecontrol.detector.NoopMaintenanceEventReader;
+import com.linkedin.kafka.cruisecontrol.detector.NoopMetricAnomalyFinder;
+import com.linkedin.kafka.cruisecontrol.detector.NoopProvisioner;
+import com.linkedin.kafka.cruisecontrol.detector.NoopTopicAnomalyFinder;
 import com.linkedin.kafka.cruisecontrol.detector.notifier.NoopNotifier;
 import java.util.Collections;
 import java.util.List;

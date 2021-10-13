@@ -5,6 +5,9 @@
 package com.linkedin.kafka.cruisecontrol.analyzer;
 
 import com.codahale.metrics.MetricRegistry;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.DiskUsageDistributionGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.Goal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.IntraBrokerDiskCapacityGoal;
 import com.linkedin.kafka.cruisecontrol.common.TestConstants;
 import com.linkedin.kafka.cruisecontrol.config.KafkaCruiseControlConfig;
 import com.linkedin.kafka.cruisecontrol.config.constants.AnalyzerConfig;
@@ -13,11 +16,8 @@ import com.linkedin.kafka.cruisecontrol.config.constants.MonitorConfig;
 import com.linkedin.kafka.cruisecontrol.executor.Executor;
 import com.linkedin.kafka.cruisecontrol.model.ClusterModel;
 import com.linkedin.kafka.cruisecontrol.monitor.LoadMonitor;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+
+import java.util.*;
 import java.util.regex.Pattern;
 import junit.framework.AssertionFailedError;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -34,6 +34,15 @@ public class GoalOptimizerTest {
     GoalOptimizer goalOptimizer = createGoalOptimizer();
     // Should exit immediately.
     goalOptimizer.run();
+  }
+
+  @Test
+  public void testContainsIntraBrokerGoal(){
+    List<Goal> goals = new ArrayList<>();
+    goals.add(new DiskUsageDistributionGoal());
+    goals.add(new IntraBrokerDiskCapacityGoal());
+    GoalOptimizer goalOptimizer = createGoalOptimizer();
+    Assert.assertTrue(goalOptimizer.containsIntraBrokerGoal(goals));
   }
 
   @Test

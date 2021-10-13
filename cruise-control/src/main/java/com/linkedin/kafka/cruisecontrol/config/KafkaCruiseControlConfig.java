@@ -153,12 +153,11 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
       throw new ConfigException("Attempt to configure default goals configuration with an empty list of goals.");
     }
 
-    // Ensure that default goals are supported inter-broker or intra-brokers goals.
-    if (defaultGoalNames.stream().anyMatch(g -> !(interBrokerGoalNames.contains(g) || intraBrokerGoalNames.contains(g)))) {
+    // Ensure that default goals are supported inter-broker.
+    if (defaultGoalNames.stream().anyMatch(g -> !(interBrokerGoalNames.contains(g)))) {
       throw new ConfigException(String.format("Attempt to configure default goals with unsupported goals (%s:%s, %s:%s and %s:%s).",
           AnalyzerConfig.DEFAULT_GOALS_CONFIG, defaultGoalNames,
-          AnalyzerConfig.GOALS_CONFIG, interBrokerGoalNames,
-          AnalyzerConfig.INTRA_BROKER_GOALS_CONFIG, intraBrokerGoalNames));
+          AnalyzerConfig.GOALS_CONFIG, interBrokerGoalNames));
     }
 
     // Ensure that hard goals are contained in default goals.
@@ -175,6 +174,14 @@ public class KafkaCruiseControlConfig extends AbstractConfig {
       throw new ConfigException(String.format("Attempt to configure self healing goals with unsupported goals (%s:%s and %s:%s).",
                                               AnomalyDetectorConfig.SELF_HEALING_GOALS_CONFIG, selfHealingGoalNames,
                                               AnalyzerConfig.DEFAULT_GOALS_CONFIG, defaultGoalNames));
+    }
+
+    // Ensure that intra-broker goals used for self-healing are contained in intra broker goals.
+    List<String> selfHealingIntraBrokerGoalNames = getList(AnomalyDetectorConfig.SELF_HEALING_INTRA_BROKER_GOALS_CONFIG);
+    if (selfHealingIntraBrokerGoalNames.stream().anyMatch(g -> !intraBrokerGoalNames.contains(g))) {
+      throw new ConfigException(String.format("Attempt to configure self healing goals with unsupported goals (%s:%s and %s:%s).",
+              AnomalyDetectorConfig.SELF_HEALING_INTRA_BROKER_GOALS_CONFIG, selfHealingIntraBrokerGoalNames,
+              AnalyzerConfig.INTRA_BROKER_GOALS_CONFIG, intraBrokerGoalNames));
     }
 
   }

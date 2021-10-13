@@ -44,9 +44,6 @@ public enum KafkaAnomalyType implements AnomalyType {
   @JsonResponseField
   TOPIC_ANOMALY(5);
 
-
-
-
   private final int _priority;
 
   KafkaAnomalyType(int priority) {
