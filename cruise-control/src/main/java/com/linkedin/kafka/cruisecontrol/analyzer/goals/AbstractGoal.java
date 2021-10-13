@@ -96,6 +96,7 @@ public abstract class AbstractGoal implements Goal {
       boolean originallyHasExcludedBrokersForReplicaMoveWithReplicas = hasExcludedBrokersForReplicaMoveWithReplicas(clusterModel,
                                                                                                                     optimizationOptions);
       while (!_finished) {
+        LOG.debug("Rebalancing for brokers {}.", brokersToBalance(clusterModel));
         for (Broker broker : brokersToBalance(clusterModel)) {
           rebalanceForBroker(broker, clusterModel, optimizedGoals, optimizationOptions);
         }

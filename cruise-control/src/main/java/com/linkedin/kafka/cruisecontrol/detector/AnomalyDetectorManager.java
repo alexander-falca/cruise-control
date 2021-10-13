@@ -21,18 +21,14 @@ import com.linkedin.kafka.cruisecontrol.detector.notifier.KafkaAnomalyType;
 import com.linkedin.kafka.cruisecontrol.exception.OptimizationFailureException;
 import com.linkedin.kafka.cruisecontrol.executor.ExecutorState;
 import com.linkedin.kafka.cruisecontrol.monitor.task.LoadMonitorTaskRunner;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
@@ -114,9 +110,7 @@ public class AnomalyDetectorManager {
     _kafkaCruiseControl = kafkaCruiseControl;
     _selfHealingGoals = getSelfHealingGoalNames(config);
     _selfHealingIntraBrokerGoals = getSelfHealingIntraBrokerGoalNames(config);
-    List<String> sanityGoals = Stream.concat(_selfHealingGoals.stream(), _selfHealingIntraBrokerGoals.stream()).collect(Collectors.toList());
-    sanityCheckGoals(sanityGoals ,false, config);
-
+    sanityCheckGoals(_selfHealingGoals ,false, config);
     _goalViolationDetector = new GoalViolationDetector(_anomalies, _kafkaCruiseControl, dropwizardMetricRegistry);
     _intraBrokerGoalViolationDetector = new IntraBrokerGoalViolationDetector(_anomalies, _kafkaCruiseControl, dropwizardMetricRegistry);
     _brokerFailureDetector = new BrokerFailureDetector(_anomalies, _kafkaCruiseControl);
@@ -529,7 +523,10 @@ public class AnomalyDetectorManager {
         LOG.info("Skipping {} fix because load monitor is in {} state.", anomalyType, loadMonitorTaskRunnerState);
         _anomalyDetectorState.onAnomalyHandle(_anomalyInProgress, AnomalyState.Status.LOAD_MONITOR_NOT_READY);
       } else {
-        if (_kafkaCruiseControl.meetCompletenessRequirements(_selfHealingGoals) || _kafkaCruiseControl.meetCompletenessRequirements(_selfHealingIntraBrokerGoals)) {
+        // Need to deal with Intra Broker Goal Violations differently
+        if(anomalyType == KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION && _kafkaCruiseControl.meetCompletenessRequirements(_selfHealingIntraBrokerGoals)) {
+            return true;
+        } else if (_kafkaCruiseControl.meetCompletenessRequirements(_selfHealingGoals)) {
           return true;
         } else {
           LOG.warn("Skipping {} fix because load completeness requirement is not met for goals.", anomalyType);

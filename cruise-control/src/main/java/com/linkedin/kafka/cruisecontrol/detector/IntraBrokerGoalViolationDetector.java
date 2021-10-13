@@ -59,7 +59,7 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
     super(anomalies, kafkaCruiseControl);
     KafkaCruiseControlConfig config = _kafkaCruiseControl.config();
     // Notice that we use a separate set of Goal instances for anomaly detector to avoid interference.
-    _detectionGoals = config.getConfiguredInstances(AnomalyDetectorConfig.ANOMALY_DETECTION_GOALS_CONFIG, Goal.class);
+    _detectionGoals = config.getConfiguredInstances(AnomalyDetectorConfig.ANOMALY_DETECTION_INTRA_BROKER_GOALS_CONFIG, Goal.class);
     _excludedTopics = Pattern.compile(config.getString(AnalyzerConfig.TOPICS_EXCLUDED_FROM_PARTITION_MOVEMENT_CONFIG));
     _allowCapacityEstimation = config.getBoolean(AnomalyDetectorConfig.ANOMALY_DETECTION_ALLOW_CAPACITY_ESTIMATION_CONFIG);
     _excludeRecentlyDemotedBrokers = config.getBoolean(AnomalyDetectorConfig.SELF_HEALING_EXCLUDE_RECENTLY_DEMOTED_BROKERS_CONFIG);
@@ -175,7 +175,8 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
               clusterModel = null;
               clusterModel = _kafkaCruiseControl.clusterModel(goal.clusterModelCompletenessRequirements(),
                                                               _allowCapacityEstimation,
-                                                              new OperationProgress());
+                                                              new OperationProgress(),
+                                                              true);
 
               // If the clusterModel contains dead brokers or disks, goal violation detector will ignore any goal violations.
               // Detection and fix for dead brokers/disks is the responsibility of broker/disk failure detector.

@@ -40,9 +40,10 @@ public enum KafkaAnomalyType implements AnomalyType {
   @JsonResponseField
   GOAL_VIOLATION(4),
   @JsonResponseField
-  TOPIC_ANOMALY(5),
+  INTRA_BROKER_GOAL_VIOLATION(4),
   @JsonResponseField
-  INTRA_BROKER_GOAL_VIOLATION(6);
+  TOPIC_ANOMALY(5);
+
 
 
 

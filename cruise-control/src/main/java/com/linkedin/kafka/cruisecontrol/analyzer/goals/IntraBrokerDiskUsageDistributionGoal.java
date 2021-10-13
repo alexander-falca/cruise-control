@@ -256,18 +256,24 @@ public class IntraBrokerDiskUsageDistributionGoal extends AbstractGoal {
                                     OptimizationOptions optimizationOptions) {
     double upperLimit = _balanceUpperThresholdByBroker.get(broker);
     double lowerLimit = _balanceLowerThresholdByBroker.get(broker);
+    LOG.debug("balancing broker {}", broker);
+    LOG.debug("List of broker disks is {}.", broker.disks());
     for (Disk disk : broker.disks()) {
       if (!disk.isAlive()) {
+        LOG.debug("Disk {} for broker {} is not alive", disk, broker);
         continue;
       }
+      LOG.debug("For broker {} disk utilization is {} with an upperLimit of {} and lowerLimit of {}", broker, diskUtilizationPercentage(disk), upperLimit, lowerLimit);
       if (diskUtilizationPercentage(disk) > upperLimit) {
         if (rebalanceByMovingLoadOut(disk, clusterModel, optimizedGoals, optimizationOptions)) {
           rebalanceBySwappingLoadOut(disk, clusterModel, optimizedGoals, optimizationOptions);
+          LOG.debug("Rebalancing disk {} for broker {} by Swapping Load out", disk, broker);
         }
       }
       if (diskUtilizationPercentage(disk) < lowerLimit) {
         if (rebalanceByMovingLoadIn(disk, clusterModel, optimizedGoals, optimizationOptions)) {
           rebalanceBySwappingLoadIn(disk, clusterModel, optimizedGoals, optimizationOptions);
+          LOG.debug("Rebalancing disk {} for broker {} by Swapping Load In", disk, broker);
         }
       }
     }

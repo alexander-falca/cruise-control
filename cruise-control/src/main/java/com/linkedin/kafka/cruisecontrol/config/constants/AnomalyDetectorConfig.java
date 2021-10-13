@@ -4,10 +4,7 @@
 
 package com.linkedin.kafka.cruisecontrol.config.constants;
 
-import com.linkedin.kafka.cruisecontrol.analyzer.goals.DiskCapacityGoal;
-import com.linkedin.kafka.cruisecontrol.analyzer.goals.MinTopicLeadersPerBrokerGoal;
-import com.linkedin.kafka.cruisecontrol.analyzer.goals.RackAwareGoal;
-import com.linkedin.kafka.cruisecontrol.analyzer.goals.ReplicaCapacityGoal;
+import com.linkedin.kafka.cruisecontrol.analyzer.goals.*;
 import com.linkedin.kafka.cruisecontrol.detector.*;
 import com.linkedin.kafka.cruisecontrol.detector.notifier.NoopNotifier;
 import java.util.Collections;
@@ -91,12 +88,12 @@ public class AnomalyDetectorConfig {
       + " If empty, uses the default.goals for self healing.";
 
   /**
-   * <code>self.healing.intra.broker.goals</code>
+   * <code>self.healing.goals</code>
    */
   public static final String SELF_HEALING_INTRA_BROKER_GOALS_CONFIG = "self.healing.intra.broker.goals";
   public static final List<String> DEFAULT_SELF_HEALING_INTRA_BROKER_GOALS = Collections.emptyList();
-  public static final String SELF_HEALING_INTRA_BROKER_GOALS_DOC = "The list of goals to be used for self-healing relevant intra Broker anomalies."
-          + " If empty, uses the intra.broker.goals for self healing.";
+  public static final String SELF_HEALING_INTRA_BROKER_GOALS_DOC = "The list of intra broker goals to be used for self-healing relevant anomalies."
+          + " If empty, uses the default.goals for self healing.";
 
   /**
    * <code>anomaly.notifier.class</code>
@@ -114,6 +111,15 @@ public class AnomalyDetectorConfig {
                                                                                     .add(ReplicaCapacityGoal.class.getName())
                                                                                     .add(DiskCapacityGoal.class.getName()).toString();
   public static final String ANOMALY_DETECTION_GOALS_DOC = "The goals that anomaly detector should detect if they are violated.";
+
+  /**
+   * <code>anomaly.detection.goals</code>
+   */
+  public static final String ANOMALY_DETECTION_INTRA_BROKER_GOALS_CONFIG = "anomaly.detection.intra.broker.goals";
+  public static final String DEFAULT_ANOMALY_DETECTION_INTRA_BROKER_GOALS = new StringJoiner(",").add(IntraBrokerDiskUsageDistributionGoal.class.getName())
+                                                                                              .add(IntraBrokerDiskCapacityGoal.class.getName())
+                                                                                              .toString();
+  public static final String ANOMALY_DETECTION_INTRA_BROKER_GOALS_DOC = "The intra broker goals that anomaly detector should detect if they are violated.";
 
   /**
    * <code>self.healing.exclude.recently.demoted.brokers</code>
@@ -342,6 +348,11 @@ public class AnomalyDetectorConfig {
                             DEFAULT_ANOMALY_DETECTION_GOALS,
                             ConfigDef.Importance.MEDIUM,
                             ANOMALY_DETECTION_GOALS_DOC)
+                    .define(ANOMALY_DETECTION_INTRA_BROKER_GOALS_CONFIG,
+                            ConfigDef.Type.LIST,
+                            DEFAULT_ANOMALY_DETECTION_INTRA_BROKER_GOALS,
+                            ConfigDef.Importance.MEDIUM,
+                            ANOMALY_DETECTION_INTRA_BROKER_GOALS_DOC)
                     .define(SELF_HEALING_EXCLUDE_RECENTLY_DEMOTED_BROKERS_CONFIG,
                             ConfigDef.Type.BOOLEAN,
                             DEFAULT_SELF_HEALING_EXCLUDE_RECENT_BROKERS_CONFIG,
