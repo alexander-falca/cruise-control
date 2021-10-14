@@ -10,11 +10,7 @@ import com.linkedin.kafka.cruisecontrol.KafkaCruiseControl;
 import com.linkedin.kafka.cruisecontrol.KafkaCruiseControlUnitTestUtils;
 import com.linkedin.kafka.cruisecontrol.config.KafkaCruiseControlConfig;
 import com.linkedin.kafka.cruisecontrol.config.constants.AnomalyDetectorConfig;
-import com.linkedin.kafka.cruisecontrol.detector.BrokerFailures;
-import com.linkedin.kafka.cruisecontrol.detector.DiskFailures;
-import com.linkedin.kafka.cruisecontrol.detector.GoalViolations;
-import com.linkedin.kafka.cruisecontrol.detector.KafkaMetricAnomaly;
-import com.linkedin.kafka.cruisecontrol.detector.TopicReplicationFactorAnomaly;
+import com.linkedin.kafka.cruisecontrol.detector.*;
 import com.linkedin.kafka.cruisecontrol.monitor.sampling.holder.BrokerEntity;
 import java.util.Collections;
 import java.util.HashMap;
@@ -127,6 +123,7 @@ public class SelfHealingNotifierTest {
     assertTrue(anomalyNotifier._alertCalled.get(KafkaAnomalyType.BROKER_FAILURE));
     assertTrue(anomalyNotifier._autoFixTriggered.get(KafkaAnomalyType.BROKER_FAILURE));
     assertFalse(anomalyNotifier._alertCalled.get(KafkaAnomalyType.GOAL_VIOLATION));
+    assertFalse(anomalyNotifier._alertCalled.get(KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION));
     assertFalse(anomalyNotifier._alertCalled.get(KafkaAnomalyType.METRIC_ANOMALY));
     assertFalse(anomalyNotifier._alertCalled.get(KafkaAnomalyType.DISK_FAILURE));
     assertFalse(anomalyNotifier._alertCalled.get(KafkaAnomalyType.TOPIC_ANOMALY));
@@ -146,6 +143,7 @@ public class SelfHealingNotifierTest {
     Map<String, String> selfHealingExplicitlyDisabled = new HashMap<>(4);
     selfHealingExplicitlyDisabled.put(SelfHealingNotifier.SELF_HEALING_BROKER_FAILURE_ENABLED_CONFIG, "false");
     selfHealingExplicitlyDisabled.put(SelfHealingNotifier.SELF_HEALING_GOAL_VIOLATION_ENABLED_CONFIG, "false");
+    selfHealingExplicitlyDisabled.put(SelfHealingNotifier.SELF_HEALING_INTRA_BROKER_GOAL_VIOLATION_ENABLED_CONFIG, "false");
     selfHealingExplicitlyDisabled.put(SelfHealingNotifier.SELF_HEALING_METRIC_ANOMALY_ENABLED_CONFIG, "false");
     selfHealingExplicitlyDisabled.put(SelfHealingNotifier.SELF_HEALING_DISK_FAILURE_ENABLED_CONFIG, "false");
     selfHealingExplicitlyDisabled.put(SelfHealingNotifier.SELF_HEALING_TOPIC_ANOMALY_ENABLED_CONFIG, "false");
@@ -222,6 +220,16 @@ public class SelfHealingNotifierTest {
     assertEquals(AnomalyNotificationResult.Action.IGNORE, result.action());
     assertTrue(anomalyNotifier._alertCalled.get(KafkaAnomalyType.TOPIC_ANOMALY));
     assertFalse(anomalyNotifier._autoFixTriggered.get(KafkaAnomalyType.TOPIC_ANOMALY));
+
+    // (6) Test intra broker goal violation anomaly can be detected by notifier.
+    anomalyNotifier.resetAlert(KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION);
+    result = anomalyNotifier.onIntraBrokerGoalViolation(
+            kafkaCruiseControlConfig.getConfiguredInstance(AnomalyDetectorConfig.INTRA_BROKER_GOAL_VIOLATIONS_CLASS_CONFIG,
+                    IntraBrokerGoalViolations.class,
+                    parameterConfigOverrides));
+    assertEquals(AnomalyNotificationResult.Action.IGNORE, result.action());
+    assertTrue(anomalyNotifier._alertCalled.get(KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION));
+    assertFalse(anomalyNotifier._autoFixTriggered.get(KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION));
   }
 
   private static class TestingBrokerFailureAutoFixNotifier extends SelfHealingNotifier {
