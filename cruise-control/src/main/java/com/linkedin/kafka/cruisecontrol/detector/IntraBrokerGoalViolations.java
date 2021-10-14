@@ -13,8 +13,12 @@ import com.linkedin.kafka.cruisecontrol.servlet.handler.async.runnable.Rebalance
 import com.linkedin.kafka.cruisecontrol.servlet.response.OptimizationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 import java.util.function.Supplier;
 
 import static com.linkedin.kafka.cruisecontrol.config.constants.AnomalyDetectorConfig.*;

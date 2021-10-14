@@ -87,7 +87,7 @@ public class AnomalyDetectorUtils {
   }
 
   /**
-   * @return A list of names for intra broker goals from {@link AnomalyDetectorConfig#SELF_HEALING_INTRA_BROKER_GOALS_CONFIG} in the order of priority.
+   * @return A list of names for intra broker goals from SELF_HEALING_INTRA_BROKER_GOALS_CONFIG in the order of priority.
    */
   public static List<String> getSelfHealingIntraBrokerGoalNames(KafkaCruiseControlConfig config) {
     List<Goal> goals = config.getConfiguredInstances(AnomalyDetectorConfig.SELF_HEALING_INTRA_BROKER_GOALS_CONFIG, Goal.class);

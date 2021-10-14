@@ -130,10 +130,12 @@ public class AnomalyDetectorConfig {
    * <code>anomaly.detection.goals</code>
    */
   public static final String ANOMALY_DETECTION_INTRA_BROKER_GOALS_CONFIG = "anomaly.detection.intra.broker.goals";
-  public static final String DEFAULT_ANOMALY_DETECTION_INTRA_BROKER_GOALS = new StringJoiner(",").add(IntraBrokerDiskUsageDistributionGoal.class.getName())
-                                                                                              .add(IntraBrokerDiskCapacityGoal.class.getName())
-                                                                                              .toString();
-  public static final String ANOMALY_DETECTION_INTRA_BROKER_GOALS_DOC = "The intra broker goals that anomaly detector should detect if they are violated.";
+  public static final String DEFAULT_ANOMALY_DETECTION_INTRA_BROKER_GOALS = new StringJoiner(",")
+                                                                                        .add(IntraBrokerDiskUsageDistributionGoal.class.getName())
+                                                                                        .add(IntraBrokerDiskCapacityGoal.class.getName())
+                                                                                        .toString();
+  public static final String ANOMALY_DETECTION_INTRA_BROKER_GOALS_DOC = "The intra broker goals that anomaly detector "
+          + "should detect if they are violated.";
 
   /**
    * <code>self.healing.exclude.recently.demoted.brokers</code>

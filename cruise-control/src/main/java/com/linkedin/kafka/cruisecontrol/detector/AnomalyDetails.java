@@ -59,7 +59,8 @@ public class AnomalyDetails {
    */
   public Map<String, Object> populateAnomalyDetails() {
     // Goal violation has one more field than other anomaly types.
-    Map<String, Object> anomalyDetails = new HashMap<>((_hasFixStarted ? 6 : 5) + ((_anomalyType == GOAL_VIOLATION)||(_anomalyType == INTRA_BROKER_GOAL_VIOLATION) ? 1 : 0));
+    Map<String, Object> anomalyDetails = new HashMap<>((_hasFixStarted ? 6 : 5)
+            + ((_anomalyType == GOAL_VIOLATION) || (_anomalyType == INTRA_BROKER_GOAL_VIOLATION) ? 1 : 0));
     anomalyDetails.put(_isJson ? DETECTION_MS : DETECTION_DATE,
                        _isJson ? _anomalyState.detectionMs() : utcDateFor(_anomalyState.detectionMs()));
     anomalyDetails.put(STATUS, _anomalyState.status());

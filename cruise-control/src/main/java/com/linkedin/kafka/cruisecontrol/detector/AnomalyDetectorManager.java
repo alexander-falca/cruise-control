@@ -111,7 +111,7 @@ public class AnomalyDetectorManager {
     _kafkaCruiseControl = kafkaCruiseControl;
     _selfHealingGoals = getSelfHealingGoalNames(config);
     _selfHealingIntraBrokerGoals = getSelfHealingIntraBrokerGoalNames(config);
-    sanityCheckGoals(_selfHealingGoals ,false, config);
+    sanityCheckGoals(_selfHealingGoals, false, config);
     _goalViolationDetector = new GoalViolationDetector(_anomalies, _kafkaCruiseControl, dropwizardMetricRegistry);
     _intraBrokerGoalViolationDetector = new IntraBrokerGoalViolationDetector(_anomalies, _kafkaCruiseControl, dropwizardMetricRegistry);
     _brokerFailureDetector = new BrokerFailureDetector(_anomalies, _kafkaCruiseControl);
@@ -525,7 +525,8 @@ public class AnomalyDetectorManager {
         _anomalyDetectorState.onAnomalyHandle(_anomalyInProgress, AnomalyState.Status.LOAD_MONITOR_NOT_READY);
       } else {
         // Need to deal with Intra Broker Goal Violations differently
-        if(anomalyType == KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION && _kafkaCruiseControl.meetCompletenessRequirements(_selfHealingIntraBrokerGoals)) {
+        if (anomalyType == KafkaAnomalyType.INTRA_BROKER_GOAL_VIOLATION
+                && _kafkaCruiseControl.meetCompletenessRequirements(_selfHealingIntraBrokerGoals)) {
             return true;
         } else if (_kafkaCruiseControl.meetCompletenessRequirements(_selfHealingGoals)) {
           return true;

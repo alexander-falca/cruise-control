@@ -9,7 +9,11 @@ import com.codahale.metrics.Timer;
 import com.linkedin.cruisecontrol.detector.Anomaly;
 import com.linkedin.cruisecontrol.exception.NotEnoughValidWindowsException;
 import com.linkedin.kafka.cruisecontrol.KafkaCruiseControl;
-import com.linkedin.kafka.cruisecontrol.analyzer.*;
+import com.linkedin.kafka.cruisecontrol.analyzer.AnalyzerUtils;
+import com.linkedin.kafka.cruisecontrol.analyzer.OptimizationOptions;
+import com.linkedin.kafka.cruisecontrol.analyzer.OptimizationOptionsGenerator;
+import com.linkedin.kafka.cruisecontrol.analyzer.ProvisionResponse;
+import com.linkedin.kafka.cruisecontrol.analyzer.ProvisionStatus;
 import com.linkedin.kafka.cruisecontrol.analyzer.goals.Goal;
 import com.linkedin.kafka.cruisecontrol.async.progress.OperationProgress;
 import com.linkedin.kafka.cruisecontrol.common.Utils;
@@ -26,8 +30,12 @@ import com.linkedin.kafka.cruisecontrol.monitor.ModelGeneration;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.linkedin.kafka.cruisecontrol.KafkaCruiseControlUtils.*;
@@ -141,9 +149,10 @@ public class IntraBrokerGoalViolationDetector extends AbstractAnomalyDetector im
       Map<String, Object> parameterConfigOverrides = new HashMap<>(2);
       parameterConfigOverrides.put(KAFKA_CRUISE_CONTROL_OBJECT_CONFIG, _kafkaCruiseControl);
       parameterConfigOverrides.put(ANOMALY_DETECTION_TIME_MS_OBJECT_CONFIG, _kafkaCruiseControl.timeMs());
-      IntraBrokerGoalViolations goalViolations = _kafkaCruiseControl.config().getConfiguredInstance(AnomalyDetectorConfig.INTRA_BROKER_GOAL_VIOLATIONS_CLASS_CONFIG,
-                                                                                         IntraBrokerGoalViolations.class,
-                                                                                         parameterConfigOverrides);
+      IntraBrokerGoalViolations goalViolations = _kafkaCruiseControl.config().
+              getConfiguredInstance(AnomalyDetectorConfig.INTRA_BROKER_GOAL_VIOLATIONS_CLASS_CONFIG,
+                                   IntraBrokerGoalViolations.class,
+                                   parameterConfigOverrides);
       boolean newModelNeeded = true;
       ClusterModel clusterModel = null;
 

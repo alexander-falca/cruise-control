@@ -5,8 +5,13 @@
 package com.linkedin.kafka.cruisecontrol.detector.notifier;
 
 import com.linkedin.cruisecontrol.detector.AnomalyType;
-import com.linkedin.kafka.cruisecontrol.detector.*;
-
+import com.linkedin.kafka.cruisecontrol.detector.BrokerFailures;
+import com.linkedin.kafka.cruisecontrol.detector.DiskFailures;
+import com.linkedin.kafka.cruisecontrol.detector.GoalViolations;
+import com.linkedin.kafka.cruisecontrol.detector.IntraBrokerGoalViolations;
+import com.linkedin.kafka.cruisecontrol.detector.KafkaMetricAnomaly;
+import com.linkedin.kafka.cruisecontrol.detector.MaintenanceEvent;
+import com.linkedin.kafka.cruisecontrol.detector.TopicAnomaly;
 import java.util.HashMap;
 import java.util.Map;
 

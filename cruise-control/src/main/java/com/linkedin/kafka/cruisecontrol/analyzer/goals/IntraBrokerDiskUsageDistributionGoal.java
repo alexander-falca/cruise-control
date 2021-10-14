@@ -263,7 +263,8 @@ public class IntraBrokerDiskUsageDistributionGoal extends AbstractGoal {
         LOG.debug("Disk {} for broker {} is not alive", disk, broker);
         continue;
       }
-      LOG.debug("For broker {} disk utilization is {} with an upperLimit of {} and lowerLimit of {}", broker, diskUtilizationPercentage(disk), upperLimit, lowerLimit);
+      LOG.debug("For broker {} disk utilization is {} with an upperLimit of {} and lowerLimit of {}", broker,
+                                                              diskUtilizationPercentage(disk), upperLimit, lowerLimit);
       if (diskUtilizationPercentage(disk) > upperLimit) {
         if (rebalanceByMovingLoadOut(disk, clusterModel, optimizedGoals, optimizationOptions)) {
           rebalanceBySwappingLoadOut(disk, clusterModel, optimizedGoals, optimizationOptions);

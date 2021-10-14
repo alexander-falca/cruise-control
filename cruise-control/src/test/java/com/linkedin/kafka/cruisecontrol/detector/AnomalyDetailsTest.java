@@ -52,7 +52,7 @@ public class AnomalyDetailsTest {
           replayAndVerify(mockAnomalyState, details, goalViolations);
           break;
         case INTRA_BROKER_GOAL_VIOLATION:
-          GoalViolations intraBrokerGoalViolations = EasyMock.mock(IntraBrokerGoalViolations.class);
+          IntraBrokerGoalViolations intraBrokerGoalViolations = EasyMock.mock(IntraBrokerGoalViolations.class);
           EasyMock.expect(intraBrokerGoalViolations.violatedGoalsByFixability()).andReturn(VIOLATED_GOALS_BY_FIXABILITY).once();
           replayAndVerify(mockAnomalyState, details, intraBrokerGoalViolations);
           break;

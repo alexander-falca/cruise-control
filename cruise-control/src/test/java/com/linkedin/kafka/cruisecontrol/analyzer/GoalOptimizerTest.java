@@ -16,8 +16,13 @@ import com.linkedin.kafka.cruisecontrol.config.constants.MonitorConfig;
 import com.linkedin.kafka.cruisecontrol.executor.Executor;
 import com.linkedin.kafka.cruisecontrol.model.ClusterModel;
 import com.linkedin.kafka.cruisecontrol.monitor.LoadMonitor;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 import junit.framework.AssertionFailedError;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -37,7 +42,7 @@ public class GoalOptimizerTest {
   }
 
   @Test
-  public void testContainsIntraBrokerGoal(){
+  public void testContainsIntraBrokerGoal() {
     List<Goal> goals = new ArrayList<>();
     goals.add(new DiskUsageDistributionGoal());
     goals.add(new IntraBrokerDiskCapacityGoal());

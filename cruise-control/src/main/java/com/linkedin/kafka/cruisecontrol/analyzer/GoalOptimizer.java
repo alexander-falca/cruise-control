@@ -26,7 +26,12 @@ import com.linkedin.kafka.cruisecontrol.monitor.MonitorUtils;
 import com.linkedin.kafka.cruisecontrol.monitor.task.LoadMonitorTaskRunner;
 import com.linkedin.kafka.cruisecontrol.servlet.response.stats.BrokerStats;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -519,18 +524,19 @@ public class GoalOptimizer implements Runnable {
   /**
    * Checks if the list of Goals includes {@link #_intraBrokerGoals}
    * @param goals The list of goals to look in
+   * @return return true if the list of goals contains an Intra Broker Goal
    */
   public boolean containsIntraBrokerGoal(List<Goal> goals) {
-    boolean _result = false;
+    boolean result = false;
     List<String> goalNames = AnalyzerUtils.convertGoalsToString(goals);
 
-    for(String goal : AnalyzerUtils.convertGoalsToString(_intraBrokerGoals)) {
-      if(goalNames.contains(goal)){
-        _result = true;
+    for (String goal : AnalyzerUtils.convertGoalsToString(_intraBrokerGoals)) {
+      if (goalNames.contains(goal)) {
+        result = true;
         break;
       }
     }
-    return _result;
+    return result;
   }
 
   private OptimizerResult updateCachedProposals(OptimizerResult result) {
@@ -583,7 +589,7 @@ public class GoalOptimizer implements Runnable {
 
         ClusterModel clusterModel = null;
         // We check for Intra broker goals among Default goals - if we have intra broker goals, set replicaPlacementInfo to true
-        if(containsIntraBrokerGoal(_goalsByPriority)) {
+        if (containsIntraBrokerGoal(_goalsByPriority)) {
           clusterModel = _loadMonitor.clusterModel(_time.milliseconds(), requirements, _allowCapacityEstimation, true, operationProgress);
         } else {
           clusterModel = _loadMonitor.clusterModel(_time.milliseconds(), requirements, _allowCapacityEstimation, operationProgress);

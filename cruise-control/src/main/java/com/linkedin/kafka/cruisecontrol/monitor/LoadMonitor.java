@@ -458,7 +458,8 @@ public class LoadMonitor {
                                    boolean populateReplicaPlacementInfo,
                                    OperationProgress operationProgress)
           throws NotEnoughValidWindowsException, TimeoutException, BrokerCapacityResolutionException {
-    ClusterModel clusterModel = clusterModel(DEFAULT_START_TIME_FOR_CLUSTER_MODEL, now, requirements, allowCapacityEstimation, operationProgress, populateReplicaPlacementInfo);
+    ClusterModel clusterModel = clusterModel(DEFAULT_START_TIME_FOR_CLUSTER_MODEL, now, requirements,
+                                            allowCapacityEstimation, operationProgress, populateReplicaPlacementInfo);
     // Micro optimization: put the broker stats construction out of the lock.
     BrokerStats brokerStats = clusterModel.brokerStats(_config);
     // update the cached brokerLoadStats
@@ -514,8 +515,6 @@ public class LoadMonitor {
           throws NotEnoughValidWindowsException, TimeoutException, BrokerCapacityResolutionException {
     return clusterModel(from, to, requirements, populateReplicaPlacementInfo, allowCapacityEstimation, operationProgress);
   }
-
-
 
   /**
    * Get cluster capacity, and skip populating cluster load. Enables quick retrieval of capacity without the load.
